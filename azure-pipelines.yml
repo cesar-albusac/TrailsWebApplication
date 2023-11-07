@@ -21,6 +21,14 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
+- task: NuGetCommand@2
+  displayName: 'Restore project dependencies'
+  inputs:
+    command: 'restore'
+    restoreSolution: '**/*.sln'
+    feedsToUse: 'select'
+    vstsFeed: '$(System.TeamProject)/Trail.Models'
+
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
