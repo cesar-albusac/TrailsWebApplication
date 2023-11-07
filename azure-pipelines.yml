@@ -18,11 +18,6 @@ steps:
   inputs:
     versionSpec: '5.9.1'
 
-- task: Npm@1
-  displayName: 'Run npm install'
-  inputs:
-    verbose: false
-
 - task: NuGetCommand@2
   displayName: 'Restore project dependencies'
   inputs:
