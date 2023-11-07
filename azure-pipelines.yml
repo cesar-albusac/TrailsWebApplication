@@ -24,7 +24,7 @@ steps:
     command: 'restore'
     restoreSolution: '**/*.sln'
     feedsToUse: 'select'
-    vstsFeed: '$(System.TeamProject)/Trail.API'
+    vstsFeed: '$(System.TeamProject)/Trail.Models'
 
 - task: DotNetCoreCLI@2
   displayName: 'Build the project - $(buildConfiguration)'
