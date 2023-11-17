@@ -18,7 +18,7 @@ namespace TrailsWebApplication.Controllers
         // GET: Student
         public ActionResult Index()
         {
-            IEnumerable<Trail> routes = null;
+            IEnumerable<Trail?> routes = new List<Trail?>();
 
             using (var client = new HttpClient())
             {
@@ -55,7 +55,7 @@ namespace TrailsWebApplication.Controllers
                 return NotFound();
             }
 
-            Trail Trail = null;
+            Trail trail = new Trail();
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri("https://localhost:7224/api/Routes");
@@ -69,8 +69,8 @@ namespace TrailsWebApplication.Controllers
                     var readTask = result.Content.ReadFromJsonAsync<Trail>();
                     readTask.Wait();
 
-                    Trail = readTask.Result;
-                    if (Trail == null)
+                    trail = readTask.Result;
+                    if (trail == null)
                     {
                         return NotFound();
                     }
@@ -79,14 +79,14 @@ namespace TrailsWebApplication.Controllers
                 {
                     //log response status here..
 
-                    Trail = new Trail();
+                    trail = new Trail();
 
                     ModelState.AddModelError(string.Empty, "Server error. Please contact administrator.");
                 }
             }
 
 
-            return View(Trail);
+            return View(trail);
         }
 
         // GET: Trails/Create
@@ -112,14 +112,14 @@ namespace TrailsWebApplication.Controllers
                     string difficulty = collection["Difficulty"];
                     string length = collection["Length"];
 
-                    Trail Trail = new Trail()
+                    Trail trail = new Trail()
                     {
                         Name = name,
                         Description = description,
                         Difficulty = Trail.DifficultyLevel.Easy,
                     };
                     //HTTP POST
-                    var postTask = client.PostAsJsonAsync<Trail>("Routes", Trail);
+                    var postTask = client.PostAsJsonAsync<Trail>("Routes", trail);
                     postTask.Wait();
 
                     var result = postTask.Result;
@@ -211,7 +211,7 @@ namespace TrailsWebApplication.Controllers
                 return NotFound();
             }
 
-            Trail Trail = null;
+            Trail trail = new Trail();
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri("https://localhost:7224/api/Routes");
@@ -226,13 +226,13 @@ namespace TrailsWebApplication.Controllers
                     //readTask.Wait();
 
                     //Trail = readTask.Result;
-                    if (Trail == null)
+                    if (trail == null)
                     {
                         return NotFound();
                     }
                 }
             }   
-            return View(Trail);
+            return View(trail);
         }
 
         // POST: Trails/Delete/5
