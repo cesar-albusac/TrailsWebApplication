@@ -2,15 +2,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Identity;
+using Azure.Storage;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
+using Trails.Controllers;
+using Trails.Data;
 using Trails.Models;
+using TrailsWebApplication.Helpers;
 
 namespace TrailsWebApplication.Controllers
 {
     public class TrailsController : Controller
     {
+        private int _nextId = 1;
+
         public TrailsController()
         {
         }
@@ -18,13 +28,13 @@ namespace TrailsWebApplication.Controllers
         // GET: Student
         public ActionResult Index()
         {
-            IEnumerable<Trail?> routes = new List<Trail?>();
+            IEnumerable<Trail?> trails = new List<Trail?>();
 
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://localhost:7224/api/Routes");
+                client.BaseAddress = new Uri("https://localhost:7224/api/Trails");
                 //HTTP GET
-                var responseTask = client.GetAsync("Routes");
+                var responseTask = client.GetAsync("Trails");
                 responseTask.Wait();
 
                 var result = responseTask.Result;
@@ -33,39 +43,172 @@ namespace TrailsWebApplication.Controllers
                     var readTask = result.Content.ReadFromJsonAsync<IList<Trail>>();
                     readTask.Wait();
 
-                    routes = readTask.Result;
+                    trails = readTask.Result != null? readTask.Result : new List<Trail>();
                 }
                 else //web api sent error response 
                 {
                     //log response status here..
 
-                    routes = Enumerable.Empty<Trail>();
+                    trails = Enumerable.Empty<Trail>();
 
                     ModelState.AddModelError(string.Empty, "Server error. Please contact administrator.");
                 }
             }
-            return View(routes);
+            if (trails.Any())
+            {
+                _nextId = trails.Count() + 1;
+            }
+
+            return View("Index",trails);
         }
 
         //GET: Trails/Details/5
-        public ActionResult Details(int? id)
+        public ActionResult Details(string? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            Trail trail = new Trail();
+            Trail? trail = new Trail();
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://localhost:7224/api/Routes");
+                client.BaseAddress = new Uri("https://localhost:7224/api/Trails");
                 //HTTP GET
-                var responseTask = client.GetAsync("Routes?id=" + id);
+                var responseTask = client.GetAsync("Trails/" + id);
                 responseTask.Wait();
 
                 var result = responseTask.Result;
                 if (result.IsSuccessStatusCode)
                 {
+
+                    var readTask = result.Content.ReadFromJsonAsync<Trail>();
+                    readTask.Wait();
+
+                    trail = readTask.Result;
+                    if (trail == null)
+                    {
+                        return NotFound();
+                    }
+                }
+                else //web api sent error response 
+                {
+                    //log response status here..
+
+                    return Index();
+
+                    ModelState.AddModelError(string.Empty, "Server error. Please contact administrator.");
+                }
+            }
+
+
+            return View("Details", trail);
+        }
+
+        // GET: Trails/Create
+        public IActionResult Create()
+        {
+            return View("Create");
+        }
+
+
+        // POST: Trails/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(Trail trail)
+        {
+            if (ModelState.IsValid)
+            {
+                using (var client = new HttpClient())
+                {
+                    client.BaseAddress = new Uri("https://localhost:7224/api/Trails");
+                    List<Task> tasks = new List<Task>();
+                    if (trail.GPXFile != null)
+                    {
+                        Task gpxTask = AzureStorageHelper.UploadFileToStorage(trail.GPXFile, trail);
+                        tasks.Add(gpxTask);
+                    }
+
+                    if (trail.ImageFile != null)
+                    {
+                        Task imageTask = AzureStorageHelper.UploadFileToStorage(trail.ImageFile, trail);
+                        tasks.Add(imageTask);
+                    }
+
+                    Task.WaitAll(tasks.ToArray());
+
+                    // Get Next id
+                    trail.Id = Guid.NewGuid().ToString();
+                    //HTTP POST
+                    var postTask = client.PostAsJsonAsync<Trail>("Trails", trail);
+                    postTask.Wait();
+
+                    var result = postTask.Result;
+                    if (result.IsSuccessStatusCode)
+                    {
+                        return RedirectToAction("Index");
+                    }
+                }
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View("Create",null);
+        }
+
+        // GET: Trails/Edit/5
+        public ActionResult Edit(string? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("https://localhost:7224/api/Trails");
+                //HTTP GET
+                var responseTask = client.GetAsync("Trails/" + id);
+                responseTask.Wait();
+                var result = responseTask.Result;
+                if (result.IsSuccessStatusCode)
+                {
+                    var readTask = result.Content.ReadFromJsonAsync<Trail>();
+                    readTask.Wait();
+
+                    var trail = readTask.Result;
+                    if (trail == null)
+                    {
+                        return NotFound();
+                    }
+
+                    return View("Edit", trail);
+                }
+            }
+            return NotFound();
+        }
+
+        public ActionResult Delete(string? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            Trail? trail = new Trail();
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("https://localhost:7224/api/Trails");
+                //HTTP GET
+                var responseTask = client.GetAsync("Trails/" + id);
+                responseTask.Wait();
+
+                var result = responseTask.Result;
+                if (result.IsSuccessStatusCode)
+                {
+
                     var readTask = result.Content.ReadFromJsonAsync<Trail>();
                     readTask.Wait();
 
@@ -86,142 +229,54 @@ namespace TrailsWebApplication.Controllers
             }
 
 
-            return View(trail);
+            return View("Delete", trail);
         }
-
-        // GET: Trails/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Trails/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection/*[Bind("Id")] Trail Trail*/)
-        {
-            if (ModelState.IsValid)
-            {
-                using (var client = new HttpClient())
-                {
-                    client.BaseAddress = new Uri("https://localhost:7224/api/Routes");
-                    string name = collection["Name"];
-                    string description = collection["Description"];
-                    string difficulty = collection["Difficulty"];
-                    string length = collection["Length"];
-
-                    Trail trail = new Trail()
-                    {
-                        Name = name,
-                        Description = description,
-                        Difficulty = Trail.DifficultyLevel.Easy,
-                    };
-                    //HTTP POST
-                    var postTask = client.PostAsJsonAsync<Trail>("Routes", trail);
-                    postTask.Wait();
-
-                    var result = postTask.Result;
-                    if (result.IsSuccessStatusCode)
-                    {
-                        return RedirectToAction("Index");
-                    }
-                }
-
-                return RedirectToAction(nameof(Index));
-            }
-
-            return View(null);
-        }
-
-        // GET: Trails/Edit/5
-        public ActionResult Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri("https://localhost:7224/api/Routes");
-                //HTTP GET
-                var responseTask = client.GetAsync("Routes?id=" + id);
-                responseTask.Wait();
-
-                var result = responseTask.Result;
-                if (result.IsSuccessStatusCode)
-                {
-                    var readTask = result.Content.ReadFromJsonAsync<Trail>();
-                    readTask.Wait();
-
-                    var Trail = readTask.Result;
-                    if (Trail == null)
-                    {
-                        return NotFound();
-                    }
-
-                    return View(Trail);
-                }
-            }
-            return NotFound();
-        }
-
-        // POST: Trails/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ReleaseDate,Genre,Price")] Trail Trail)
-        //{
-        //    if (id.ToString() != Trail.Id)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            _context.Update(Trail);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!TrailExists(int.Parse(Trail.Id)))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    return View(Trail);
-        //}
 
         // GET: Trails/Delete/5
-        public ActionResult Delete(int? id)
+        [HttpPost]
+        public ActionResult Delete(Trail trail)
         {
-            if (id == null)
+            if (trail == null)
             {
                 return NotFound();
             }
+            bool deleteImage = false;
+            bool deleteGpx = false;
+            string? gpxUrl = null;
+            string? imageUrl = null;
 
-            Trail trail = new Trail();
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://localhost:7224/api/Routes");
+                if(trail.ImageUrl != null)
+                {
+                    imageUrl = trail.ImageUrl;
+                    deleteImage = true;
+                }
+
+                if(trail.GPXUrl != null)
+                {
+                    gpxUrl = trail.GPXUrl;
+                    deleteGpx = true;
+                }
+
+                client.BaseAddress = new Uri("https://localhost:7224/api/Trails ");
                 //HTTP GET
-                var responseTask = client.DeleteAsync("Routes?id=" + id);
+                var responseTask = client.DeleteAsync("Trails?id=" + trail.Id);
                 responseTask.Wait();
 
                 var result = responseTask.Result;
                 if (result.IsSuccessStatusCode)
                 {
+                    if(deleteGpx && gpxUrl != null)
+                    {
+                        AzureStorageHelper.DeleteFileFromStorage(gpxUrl);
+                    }
+
+                    if (deleteImage && imageUrl != null)
+                    {
+                        AzureStorageHelper.DeleteFileFromStorage(imageUrl);
+                    }
+
                     var readTask = result.Content.ReadAsStream();
                     //readTask.Wait();
 
@@ -230,33 +285,13 @@ namespace TrailsWebApplication.Controllers
                     {
                         return NotFound();
                     }
+
+
                 }
             }   
-            return View(trail);
+            return Index();
         }
 
-        // POST: Trails/Delete/5
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(int id)
-        //{
-        //    if (_context.Trail == null)
-        //    {
-        //        return Problem("Entity set 'TrailsWebApplicationContext.Trail'  is null.");
-        //    }
-        //    var Trail = await _context.Trail.FindAsync(id);
-        //    if (Trail != null)
-        //    {
-        //        _context.Trail.Remove(Trail);
-        //    }
-
-        //    await _context.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
-
-        //private bool TrailExists(int id)
-        //{
-        //  return (_context.Trail?.Any(e => e.Id == id.ToString())).GetValueOrDefault();
-        //}
+       
     }
 }

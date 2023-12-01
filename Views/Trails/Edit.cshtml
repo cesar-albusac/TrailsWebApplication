@@ -33,6 +33,17 @@
                 <input asp-for="Distance" class="form-control" />
                 <span asp-validation-for="Distance" class="text-danger"></span>
             </div>
+            <!-- Add file input for GPX file -->
+            <div class="form-group">
+                <label asp-for="GPXFile" class="control-label">Archivo GPX</label>
+                <input asp-for="GPXFile" type="file" class="form-control" accept=".gpx" />
+                <span asp-validation-for="GPXFile" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ImageFile" class="control-label">Portada</label>
+                <input asp-for="ImageFile" type="file" class="form-control" accept=".jpeg,.jpg,.png" />
+                <span asp-validation-for="ImageFile" class="text-danger"></span>
+            </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
@@ -41,7 +52,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Volver a la lista</a>
 </div>
 
 @section Scripts {

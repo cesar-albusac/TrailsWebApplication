@@ -2,41 +2,170 @@
 
 @{
     ViewData["Title"] = "Details";
+    ViewData["Name"] = "Details";
 }
 
-<h1>Details</h1>
+@section scripts{
+
+
+}
+
+<h1>Detalles</h1>
 
 <div>
-    <h4>Trail</h4>
+    <h4>Ruta</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
+            Nombre@* @Html.DisplayNameFor(model => model.Name) *@
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Name)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
+            Descripción@* @Html.DisplayNameFor(model => model.Description) *@
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Description)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Difficulty)
+           Dificultad@*  @Html.DisplayNameFor(model => model.Difficulty) *@
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Difficulty)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Distance)
+            Distancia@* @Html.DisplayNameFor(model => model.Distance) *@
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10" id="distance">
             @Html.DisplayFor(model => model.Distance)
         </dd>
     </dl>
 </div>
+<div id="map"></div>
+<script>
+    // Full list options at "leaflet-elevation.js"
+    var elevation_options = {
+
+        // Default chart colors: theme lime-theme, magenta-theme, ...
+        theme: "lightblue-theme",
+
+        // Chart container outside/inside map container
+        detached: true,
+
+        // if (detached), the elevation chart container
+        elevationDiv: "#elevation-div",
+
+        // if (!detached) autohide chart profile on chart mouseleave
+        autohide: false,
+
+        // if (!detached) initial state of chart profile control
+        collapsed: false,
+
+        // if (!detached) control position on one of map corners
+        position: "topright",
+
+        // Toggle close icon visibility
+        closeBtn: true,
+
+        // Autoupdate map center on chart mouseover.
+        followMarker: true,
+
+        // Autoupdate map bounds on chart update.
+        autofitBounds: true,
+
+        // Chart distance/elevation units.
+        imperial: false,
+
+        // [Lat, Long] vs [Long, Lat] points. (leaflet default: [Lat, Long])
+        reverseCoords: false,
+
+        // Acceleration chart profile: true || "summary" || "disabled" || false
+        acceleration: false,
+
+        // Slope chart profile: true || "summary" || "disabled" || false
+        slope: false,
+
+        // Speed chart profile: true || "summary" || "disabled" || false
+        speed: false,
+
+        // Altitude chart profile: true || "summary" || "disabled" || false
+        altitude: true,
+
+        // Display time info: true || "summary" || false
+        time: true,
+
+        // Display distance info: true || "summary" || false
+        distance: true,
+
+        // Summary track info style: "inline" || "multiline" || false
+        summary: 'multiline',
+
+        // Download link: "link" || false || "modal"
+        downloadLink: 'link',
+
+        // Toggle chart ruler filter
+        ruler: true,
+
+        // Toggle chart legend filter
+        legend: true,
+
+        // Toggle "leaflet-almostover" integration
+        almostOver: true,
+
+        // Toggle "leaflet-distance-markers" integration
+        distanceMarkers: false,
+
+        // Toggle "leaflet-edgescale" integration
+        edgeScale: false,
+
+        // Toggle "leaflet-hotline" integration
+        hotline: true,
+
+        // Display track datetimes: true || false
+        timestamps: false,
+
+        // Display track waypoints: true || "markers" || "dots" || false
+        waypoints: true,
+
+        // Toggle custom waypoint icons: true || { associative array of <sym> tags } || false
+        wptIcons: {
+            '': L.divIcon({
+                className: 'elevation-waypoint-marker',
+                html: '<i class="elevation-waypoint-icon"></i>',
+                iconSize: [30, 30],
+                iconAnchor: [8, 30],
+            }),
+        },
+
+        // Toggle waypoint labels: true || "markers" || "dots" || false
+        wptLabels: true,
+
+        // Render chart profiles as Canvas or SVG Paths
+        preferCanvas: true,
+
+    };
+
+    // Instantiate map (leaflet-ui).
+    var map = L.map('map', { mapTypeId: 'terrain', center: [41.4583, 12.7059], zoom: 5 });
+
+    // Instantiate elevation control.
+    var controlElevation = L.control.elevation(elevation_options).on('eledata_loaded', function (e) {
+        var track = e.track_info;
+        var layer = e.layer;
+
+        // Update custom .gpx-summary info
+        document.getElementById("distance").innerHTML = (track.distance).toFixed(2) + " Km"
+    }).addTo(map);;
+
+
+
+    // Load track from url (allowed data types: "*.geojson", "*.gpx", "*.tcx")
+    var gpxUrl = '@Model.GPXUrl';
+    controlElevation.load(gpxUrl);
+
+</script>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Volver a la lista</a>
 </div>

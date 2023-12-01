@@ -4,43 +4,60 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
+<h1>Crear</h1>
 
-<h4>Trail</h4>
+<h4>Ruta</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
+                <label asp-for="Name" class="control-label">Título</label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
+                <label asp-for="Description" class="control-label">Descripción</label>
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Difficulty" class="control-label"></label>
-                <input asp-for="Difficulty" class="form-control" />
+                <label asp-for="Difficulty" class="control-label">Dificultad</label>
+                <select asp-for="Difficulty" class="form-control">
+                    <option value="1"> Fácil </option>
+                    <option value="2"> Media </option>
+                    <option value="3"> Difícil </option>
+                </select>
                 <span asp-validation-for="Difficulty" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Distance" class="control-label"></label>
+                <label asp-for="Distance" class="control-label">Distancia Total</label>
                 <input asp-for="Distance" class="form-control" />
                 <span asp-validation-for="Distance" class="text-danger"></span>
             </div>
+            <!-- Add file input for GPX file -->
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <label asp-for="GPXFile" class="control-label">Archivo GPX</label>
+                <input asp-for="GPXFile" type="file" class="form-control" accept=".gpx" />
+                <span asp-validation-for="GPXFile" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ImageFile" class="control-label">Portada</label>
+                <input asp-for="ImageFile" type="file" class="form-control" accept=".jpeg,.jpg,.png" />
+                <span asp-validation-for="ImageFile" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type ="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
+
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Volver a la lista</a>
 </div>
 
 @section Scripts {
