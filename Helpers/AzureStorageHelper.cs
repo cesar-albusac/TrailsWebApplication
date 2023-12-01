@@ -43,7 +43,7 @@ namespace TrailsWebApplication.Helpers
         }
 
         // Upload file into Azure Blob storage
-        public static async Task DeleteFileFromStorage(string? file)
+        public async static void DeleteFileFromStorage(string? file)
         {
             string container = Path.GetExtension(file) == ".gpx" ? "trails" : "images";
 

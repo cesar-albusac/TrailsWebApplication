@@ -96,8 +96,6 @@ namespace TrailsWebApplication.Controllers
                     //log response status here..
 
                     return Index();
-
-                    ModelState.AddModelError(string.Empty, "Server error. Please contact administrator.");
                 }
             }
 
