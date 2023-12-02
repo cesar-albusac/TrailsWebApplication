@@ -16,16 +16,16 @@
                 Portada
             </th>
             <th>
-                Título@* @Html.DisplayN</th>ameFor(model => model.Name) *@
+                Título
             </th>
             <th>
-                Descripción@* @Html.DisplayNameFor(model => model.Description) *@
+                Descripción
             </th>
             <th>
-                Dificultad@* @Html.DisplayNameFor(model => model.Difficulty) *@
+                Dificultad
             </th>
             <th>
-                Distancia @* @Html.DisplayNameFor(model => model.Distance) *@
+                Distancia
             </th>
             <th></th>
         </tr>
@@ -36,7 +36,7 @@
             <td>
                 @if (string.IsNullOrEmpty(item.ImageUrl))
                 {
-                    <p>This is previledge customer</p>
+                        <img src="@Url.Content("https://trailsstorageaccount.blob.core.windows.net/thumbnails/default.jpg")" alt="images" />
                 }
                 else
                 {

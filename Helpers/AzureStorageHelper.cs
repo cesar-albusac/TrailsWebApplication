@@ -1,21 +1,38 @@
-﻿using Azure.Storage.Blobs;
+﻿using Azure.Core;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using Azure.Storage.Blobs;
 using Trails.Models;
 
 namespace TrailsWebApplication.Helpers
 {
     public class AzureStorageHelper
     {
-
-
+       
+        
         // Upload file into Azure Blob storage
         public static async Task UploadFileToStorage(IFormFile file, Trail trail)
         {
+            SecretClientOptions options = new SecretClientOptions()
+            {
+                Retry =
+                {
+                Delay= TimeSpan.FromSeconds(2),
+                MaxDelay = TimeSpan.FromSeconds(16),
+                MaxRetries = 5,
+                Mode = RetryMode.Exponential
+                }
+            };
+            SecretClient client = new SecretClient(new Uri("https://hikingtrailskeyvault.vault.azure.net/"), new DefaultAzureCredential(), options);
+
+            KeyVaultSecret secret = client.GetSecret("trails-blob-connectionString");
+
+            string secretValue = secret.Value;
+
             string container = Path.GetExtension(file.FileName) == ".gpx" ? "trails" : "images";
 
-            var connectionString = "DefaultEndpointsProtocol=https;" +
-                "AccountName=trailsstorageaccount;" +
-                "AccountKey=" +
-                "EndpointSuffix=core.windows.net";
+            var connectionString = secretValue;
+
 
             // intialize BobClient 
             BlobClient blobClient = new BlobClient(
