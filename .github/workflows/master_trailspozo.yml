@@ -53,5 +53,5 @@ jobs:
         with:
           app-name: 'trailspozo'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D62EA00602E640C891A68331CB3110DC }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_74AF9742ECF04CCC80E1492D83869F97 }}
           package: .
