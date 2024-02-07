@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -19,11 +20,42 @@ namespace TrailsWebApplication.Controllers
 {
     public class TrailsController : Controller
     {
+        private readonly IConfiguration _configuration;
+        private string apiUrl = "";
+
+        public TrailsController(IConfiguration configuration)
+        {
+            _configuration = configuration;
+            apiUrl = GetSecretFromKeyVault("trailsapiurl");
+
+        }
+
+        public string GetSecretFromKeyVault(string secretName)
+        {
+            string keyVaultUrl = _configuration["KeyVaultUrl"]; // Retrieve the Key Vault URL from appsettings.json or configuration
+            keyVaultUrl = "https://hikingtrailskeyvault.vault.azure.net/";
+
+            var secretClient = new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
+
+            try
+            {
+                KeyVaultSecret secret = secretClient.GetSecretAsync(secretName).Result;
+                string secretValue = secret.Value;
+
+                // Now you have the secret value, you can use it as needed
+                // For example, you can pass it to a view or return it as JSON
+
+                return secretValue;
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions
+                return null;
+            }
+        }
+
         private int _nextId = 1;
 
-        public TrailsController()
-        {
-        }
 
         // GET: Student
         public ActionResult Index()
@@ -32,7 +64,7 @@ namespace TrailsWebApplication.Controllers
 
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://localhost:7224/api/Trails");
+                client.BaseAddress = new Uri(apiUrl);
                 //HTTP GET
                 var responseTask = client.GetAsync("Trails");
                 responseTask.Wait();
@@ -73,7 +105,7 @@ namespace TrailsWebApplication.Controllers
             Trail? trail = new Trail();
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://localhost:7224/api/Trails");
+                client.BaseAddress = new Uri(apiUrl);
                 //HTTP GET
                 var responseTask = client.GetAsync("Trails/" + id);
                 responseTask.Wait();
@@ -121,7 +153,7 @@ namespace TrailsWebApplication.Controllers
             {
                 using (var client = new HttpClient())
                 {
-                    client.BaseAddress = new Uri("https://localhost:7224/api/Trails");
+                    client.BaseAddress = new Uri(apiUrl);
                     List<Task> tasks = new List<Task>();
                     if (trail.GPXFile != null)
                     {
@@ -166,7 +198,7 @@ namespace TrailsWebApplication.Controllers
 
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://localhost:7224/api/Trails");
+                client.BaseAddress = new Uri(apiUrl);
                 //HTTP GET
                 var responseTask = client.GetAsync("Trails/" + id);
                 responseTask.Wait();
@@ -198,7 +230,7 @@ namespace TrailsWebApplication.Controllers
             Trail? trail = new Trail();
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://localhost:7224/api/Trails");
+                client.BaseAddress = new Uri(apiUrl);
                 //HTTP GET
                 var responseTask = client.GetAsync("Trails/" + id);
                 responseTask.Wait();
@@ -257,7 +289,7 @@ namespace TrailsWebApplication.Controllers
                     deleteGpx = true;
                 }
 
-                client.BaseAddress = new Uri("https://localhost:7224/api/Trails ");
+                client.BaseAddress = new Uri(apiUrl);
                 //HTTP GET
                 var responseTask = client.DeleteAsync("Trails?id=" + trail.Id);
                 responseTask.Wait();
