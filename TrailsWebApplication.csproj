@@ -23,17 +23,12 @@
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.5.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="3.1.24" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.16" />
+    <PackageReference Include="TrailsAPI" Version="1.0.0-CI-20240207-211113" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Data\Images\" />
     <Folder Include="Migrations\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="TrailsAPI">
-      <HintPath>..\TrailsAPI\bin\Debug\net6.0\TrailsAPI.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

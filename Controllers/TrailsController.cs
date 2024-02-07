@@ -11,8 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
-using Trails.Controllers;
-using Trails.Data;
 using Trails.Models;
 using TrailsWebApplication.Helpers;
 
