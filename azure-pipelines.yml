@@ -1,90 +1,90 @@
 trigger:
   - master
   
-  pool:
-    vmImage: 'windows-latest'
-  
-  variables:
-    buildConfiguration: 'Release'
-    dotnetSdkVersion: '6.x'
-  
-  stages:
-    - stage: Build
-      displayName: Build stage
-      jobs:
-        - job: Build
-          displayName: Build
-          timeoutInMinutes: 0
-          pool:
-            vmImage: 'windows-latest'
-          steps:
-          - task: UseDotNet@2
-            displayName: 'Use .NET SDK $(dotnetSdkVersion)'
-            inputs:
-              version: '$(dotnetSdkVersion)'
-  
-          - task: NuGetToolInstaller@0
-            inputs:
-              versionSpec: '5.9.1'
-  
-          - task: NuGetCommand@2
-            displayName: 'Restore project dependencies'
-            inputs:
-              command: 'restore'
-              restoreSolution: '**/*.sln'
-              feedsToUse: 'select'
-              vstsFeed: '$(System.TeamProject)/Trail.Models'
-  
-          - task: DotNetCoreCLI@2
-            displayName: 'Build the project - $(buildConfiguration)'
-            inputs:
-              command: 'build'
-              arguments: '--no-restore --configuration $(buildConfiguration)'
-              projects: '**/*.csproj'
-  
-          - task: DotNetCoreCLI@2
-            displayName: 'Publish the project - $(buildConfiguration)'
-            inputs:
-              command: 'publish'
-              projects: '**/*.csproj'
-              publishWebProjects: false
-              arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
-              zipAfterPublish: true
-  
-          - task: PublishBuildArtifacts@1
-            displayName: 'Publish Artifact: drop'
-            condition: succeeded()
-    - stage: Test
-      displayName: Test stage
-      dependsOn: Build
-      jobs:
-        - job: Test
-          displayName: Test
-          timeoutInMinutes: 0
-          pool:
-            vmImage: 'windows-latest'
-          steps:
-          - task: UseDotNet@2
-            displayName: 'Use .NET SDK $(dotnetSdkVersion)'
-            inputs:
-              version: '$(dotnetSdkVersion)'
-  
-          - task: NuGetToolInstaller@0
-            inputs:
-              versionSpec: '5.9.1'
-  
-          - task: NuGetCommand@2
-            displayName: 'Restore project dependencies'
-            inputs:
-              command: 'restore'
-              restoreSolution: '**/*.sln'
-              feedsToUse: 'select'
-              vstsFeed: '$(System.TeamProject)/Trail.Models'
-  
-          - task: DotNetCoreCLI@2
-            displayName: 'Run tests'
-            inputs:
-              command: 'test'
-              projects: '**/*Tests.csproj'
-              arguments: '--configuration $(buildConfiguration)'
-              publishTestResults: true
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  dotnetSdkVersion: '6.x'
+
+stages:
+  - stage: Build
+    displayName: Build stage
+    jobs:
+      - job: Build
+        displayName: Build
+        timeoutInMinutes: 0
+        pool:
+          vmImage: 'windows-latest'
+        steps:
+        - task: UseDotNet@2
+          displayName: 'Use .NET SDK $(dotnetSdkVersion)'
+          inputs:
+            version: '$(dotnetSdkVersion)'
+
+        - task: NuGetToolInstaller@0
+          inputs:
+            versionSpec: '5.9.1'
+
+        - task: NuGetCommand@2
+          displayName: 'Restore project dependencies'
+          inputs:
+            command: 'restore'
+            restoreSolution: '**/*.sln'
+            feedsToUse: 'select'
+            vstsFeed: '$(System.TeamProject)/Trail.Models'
+
+        - task: DotNetCoreCLI@2
+          displayName: 'Build the project - $(buildConfiguration)'
+          inputs:
+            command: 'build'
+            arguments: '--no-restore --configuration $(buildConfiguration)'
+            projects: '**/*.csproj'
+
+        - task: DotNetCoreCLI@2
+          displayName: 'Publish the project - $(buildConfiguration)'
+          inputs:
+            command: 'publish'
+            projects: '**/*.csproj'
+            publishWebProjects: false
+            arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
+            zipAfterPublish: true
+
+        - task: PublishBuildArtifacts@1
+          displayName: 'Publish Artifact: drop'
+          condition: succeeded()
+  - stage: Test
+    displayName: Test stage
+    dependsOn: Build
+    jobs:
+      - job: Test
+        displayName: Test
+        timeoutInMinutes: 0
+        pool:
+          vmImage: 'windows-latest'
+        steps:
+        - task: UseDotNet@2
+          displayName: 'Use .NET SDK $(dotnetSdkVersion)'
+          inputs:
+            version: '$(dotnetSdkVersion)'
+
+        - task: NuGetToolInstaller@0
+          inputs:
+            versionSpec: '5.9.1'
+
+        - task: NuGetCommand@2
+          displayName: 'Restore project dependencies'
+          inputs:
+            command: 'restore'
+            restoreSolution: '**/*.sln'
+            feedsToUse: 'select'
+            vstsFeed: '$(System.TeamProject)/Trail.Models'
+
+        - task: DotNetCoreCLI@2
+          displayName: 'Run tests'
+          inputs:
+            command: 'test'
+            projects: '**/*Tests.csproj'
+            arguments: '--configuration $(buildConfiguration)'
+            publishTestResults: true
