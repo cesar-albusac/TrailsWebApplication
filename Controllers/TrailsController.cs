@@ -28,19 +28,12 @@ namespace TrailsWebApplication.Controllers
             _configuration = configuration;
             _logger = logger;
             apiUrl = GetSecretFromKeyVault("trailsapiurl");
-
-
         }
 
         public string GetSecretFromKeyVault(string secretName)
         {
-            _logger.LogTrace("Cesar {DT}",            DateTime.UtcNow.ToLongTimeString());
-            _logger.LogTrace("Cesar {DT}", DateTime.UtcNow.ToLongTimeString());
-
             // Retrieve the Key Vault URL from appsettings.json 
             string keyVaultUrl = _configuration["KeyVaultUrl"]; 
-
-            _logger.LogInformation("KeyVaultUrl is " + keyVaultUrl);
             var secretClient = new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
 
             try
@@ -56,19 +49,18 @@ namespace TrailsWebApplication.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 // Handle exceptions
-                return null;
+                return string.Empty;
             }
         }
 
         private int _nextId = 1;
 
-
-        // GET: Student
         public ActionResult Index()
         {
             IEnumerable<Trail?> trails = new List<Trail?>();
-
+            _logger.LogInformation("Index() - Getting all Trails");
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(apiUrl);
@@ -86,13 +78,12 @@ namespace TrailsWebApplication.Controllers
                 }
                 else //web api sent error response 
                 {
-                    //log response status here..
-
+                    _logger.LogError(string.Format("Web Api Error : Status Code {0}. Response Content:  {1}", result.StatusCode, result.Content));
                     trails = Enumerable.Empty<Trail>();
-
                     ModelState.AddModelError(string.Empty, "Server error. Please contact administrator.");
                 }
             }
+            // TODO  : REplace this code and auto generate ids 
             if (trails.Any())
             {
                 _nextId = trails.Count() + 1;
@@ -106,6 +97,7 @@ namespace TrailsWebApplication.Controllers
         {
             if (id == null)
             {
+                _logger.LogInformation("id is null in Details()");
                 return NotFound();
             }
 
@@ -132,7 +124,7 @@ namespace TrailsWebApplication.Controllers
                 }
                 else //web api sent error response 
                 {
-                    //log response status here..
+                    _logger.LogError(string.Format("Web Api Error : Status Code {0}. Response Content:  {1}", result.StatusCode, result.Content));
 
                     return Index();
                 }
@@ -187,6 +179,10 @@ namespace TrailsWebApplication.Controllers
                     {
                         return RedirectToAction("Index");
                     }
+                    else
+                    {
+                        _logger.LogError(string.Format("Web Api Error : Status Code {0}. Response Content:  {1}", result.StatusCode, result.Content));
+                    }
                 }
 
                 return RedirectToAction(nameof(Index));
@@ -223,6 +219,11 @@ namespace TrailsWebApplication.Controllers
 
                     return View("Edit", trail);
                 }
+                else
+                {
+                    _logger.LogError(string.Format("Web Api Error : Status Code {0}. Response Content:  {1}", result.StatusCode, result.Content));
+
+                }
             }
             return NotFound();
         }
@@ -257,7 +258,7 @@ namespace TrailsWebApplication.Controllers
                 }
                 else //web api sent error response 
                 {
-                    //log response status here..
+                    _logger.LogError(string.Format("Web Api Error : Status Code {0}. Response Content:  {1}", result.StatusCode, result.Content));
 
                     trail = new Trail();
 
@@ -322,8 +323,10 @@ namespace TrailsWebApplication.Controllers
                     {
                         return NotFound();
                     }
-
-
+                }
+                else
+                {
+                    _logger.LogError(string.Format("Web Api Error : Status Code {0}. Response Content:  {1}", result.StatusCode, result.Content));
                 }
             }   
             return Index();
