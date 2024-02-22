@@ -19,20 +19,28 @@ namespace TrailsWebApplication.Controllers
     public class TrailsController : Controller
     {
         private readonly IConfiguration _configuration;
+        private const string Trails = "Trails";
         private string apiUrl = "";
+        private readonly ILogger<TrailsController> _logger;
 
-        public TrailsController(IConfiguration configuration)
+        public TrailsController(IConfiguration configuration,ILogger<TrailsController> logger)
         {
             _configuration = configuration;
+            _logger = logger;
             apiUrl = GetSecretFromKeyVault("trailsapiurl");
+
 
         }
 
         public string GetSecretFromKeyVault(string secretName)
         {
-            string keyVaultUrl = _configuration["KeyVaultUrl"]; // Retrieve the Key Vault URL from appsettings.json or configuration
-            keyVaultUrl = "https://hikingtrailskeyvault.vault.azure.net/";
+            _logger.LogTrace("Cesar {DT}",            DateTime.UtcNow.ToLongTimeString());
+            _logger.LogTrace("Cesar {DT}", DateTime.UtcNow.ToLongTimeString());
 
+            // Retrieve the Key Vault URL from appsettings.json 
+            string keyVaultUrl = _configuration["KeyVaultUrl"]; 
+
+            _logger.LogInformation("KeyVaultUrl is " + keyVaultUrl);
             var secretClient = new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
 
             try
@@ -40,6 +48,7 @@ namespace TrailsWebApplication.Controllers
                 KeyVaultSecret secret = secretClient.GetSecretAsync(secretName).Result;
                 string secretValue = secret.Value;
 
+                System.Diagnostics.Trace.TraceInformation("secretValue is" + secretValue);
                 // Now you have the secret value, you can use it as needed
                 // For example, you can pass it to a view or return it as JSON
 
@@ -64,7 +73,7 @@ namespace TrailsWebApplication.Controllers
             {
                 client.BaseAddress = new Uri(apiUrl);
                 //HTTP GET
-                var responseTask = client.GetAsync("Trails");
+                var responseTask = client.GetAsync(Trails);
                 responseTask.Wait();
 
                 var result = responseTask.Result;
@@ -105,7 +114,7 @@ namespace TrailsWebApplication.Controllers
             {
                 client.BaseAddress = new Uri(apiUrl);
                 //HTTP GET
-                var responseTask = client.GetAsync("Trails/" + id);
+                var responseTask = client.GetAsync(string.Join('/', Trails, id));
                 responseTask.Wait();
 
                 var result = responseTask.Result;
@@ -170,7 +179,7 @@ namespace TrailsWebApplication.Controllers
                     // Get Next id
                     trail.Id = Guid.NewGuid().ToString();
                     //HTTP POST
-                    var postTask = client.PostAsJsonAsync<Trail>("Trails", trail);
+                    var postTask = client.PostAsJsonAsync<Trail>(Trails, trail);
                     postTask.Wait();
 
                     var result = postTask.Result;
@@ -198,7 +207,7 @@ namespace TrailsWebApplication.Controllers
             {
                 client.BaseAddress = new Uri(apiUrl);
                 //HTTP GET
-                var responseTask = client.GetAsync("Trails/" + id);
+                var responseTask = client.GetAsync(string.Join('/', Trails, id));
                 responseTask.Wait();
                 var result = responseTask.Result;
                 if (result.IsSuccessStatusCode)
@@ -230,7 +239,7 @@ namespace TrailsWebApplication.Controllers
             {
                 client.BaseAddress = new Uri(apiUrl);
                 //HTTP GET
-                var responseTask = client.GetAsync("Trails/" + id);
+                var responseTask = client.GetAsync(string.Join('/', Trails, id));
                 responseTask.Wait();
 
                 var result = responseTask.Result;
@@ -289,7 +298,7 @@ namespace TrailsWebApplication.Controllers
 
                 client.BaseAddress = new Uri(apiUrl);
                 //HTTP GET
-                var responseTask = client.DeleteAsync("Trails?id=" + trail.Id);
+                var responseTask = client.DeleteAsync(string.Format("{0}?id={1}", Trails, trail.Id));
                 responseTask.Wait();
 
                 var result = responseTask.Result;
