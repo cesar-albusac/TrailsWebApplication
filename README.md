@@ -1,8 +1,5 @@
-# TrailsWebApplication
-
-[![Build Status](https://dev.azure.com/cesypozo2/Hiking%20Trails/_apis/build/status%2Fcesar2.TrailsWebApplication?branchName=master)](https://dev.azure.com/cesypozo2/Hiking%20Trails/_build/latest?definitionId=11&branchName=master)
-
 # Hiking Trails 🏞️
+[![Build Status](https://dev.azure.com/cesypozo2/Hiking%20Trails/_apis/build/status%2Fcesar2.TrailsWebApplication?branchName=master)](https://dev.azure.com/cesypozo2/Hiking%20Trails/_build/latest?definitionId=11&branchName=master)
 
 This project is a web application built using **ASP.NET Core MVC (Model View Controller) framework**. The primary goal of this project is to learn and utilize various **Azure** services. This project is dependent of [Trails Web API](https://github.com/cesar2/TrailsAPI "Trails ASP .NET Core Web API")
 
