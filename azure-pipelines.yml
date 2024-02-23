@@ -88,3 +88,24 @@ stages:
             projects: '**/*Tests.csproj'
             arguments: '--configuration $(buildConfiguration)'
             publishTestResults: true
+
+  - stage: Deploy
+    displayName: Deploy stage
+    dependsOn: Test
+    jobs:
+      - deployment: Deploy
+        displayName: Deploy to Azure App Service
+        environment: 'staging'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+              - task: AzureRmWebAppDeployment@4
+                displayName: 'Azure App Service Deploy'
+                inputs:
+                  ConnectionType: 'AzureRM'
+                  azureSubscription: $(azure-subscription)
+                  appType: 'webApp'
+                  WebAppName: $(app-service)
+                  packageForLinux: '$(Build.ArtifactStagingDirectory)/$(buildConfiguration)/*.zip'
+                  enableCustomDeployment: true
