@@ -95,7 +95,7 @@ stages:
     jobs:
       - deployment: Deploy
         displayName: Deploy to Azure App Service
-        environment: 'staging'
+
         strategy:
           runOnce:
             deploy:
