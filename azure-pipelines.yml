@@ -48,7 +48,7 @@ stages:
             command: 'publish'
             projects: '**/*.csproj'
             publishWebProjects: false
-            arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
+            arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
             zipAfterPublish: true
 
         - task: PublishBuildArtifacts@1
@@ -106,5 +106,5 @@ stages:
                   azureSubscription: 'Azure subscription 1(e09df683-5860-4c9a-916e-34b74a94857a)'
                   appType: 'webAppLinux'
                   WebAppName: 'trailswebapp'
-                  packageForLinux: '$(Build.ArtifactStagingDirectory)/$(buildConfiguration)/*.zip'
+                  packageForLinux: '$(Build.ArtifactStagingDirectory)/*.zip'
                   RuntimeStack: 'DOTNETCORE|6.0'
