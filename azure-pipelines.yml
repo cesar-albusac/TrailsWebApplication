@@ -52,7 +52,8 @@ stages:
             zipAfterPublish: true
 
         - task: PublishBuildArtifacts@1
-          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+          inputs:
+            PathtoPublish: '$(Build.ArtifactStagingDirectory)'
           displayName: 'Publish Artifact: drop'
           condition: succeeded()
 
@@ -110,4 +111,3 @@ stages:
                   WebAppName: 'trailswebapp'
                   packageForLinux: '$(Build.ArtifactStagingDirectory)/*.zip'
                   RuntimeStack: 'DOTNETCORE|6.0'
-              - task: PublishBuildArtifacts@1
