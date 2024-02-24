@@ -106,5 +106,5 @@ stages:
                   azureSubscription: 'Azure subscription 1(e09df683-5860-4c9a-916e-34b74a94857a)'
                   appType: 'webAppLinux'
                   WebAppName: 'trailswebapp'
-                  packageForLinux: '$(Build.ArtifactStagingDirectory)\$(buildConfiguration)/*.zip'
+                  packageForLinux: '$(Build.ArtifactStagingDirectory)/$(buildConfiguration)/*.zip'
                   RuntimeStack: 'DOTNETCORE|6.0'
