@@ -54,6 +54,7 @@ stages:
         - task: PublishBuildArtifacts@1
           displayName: 'Publish Artifact: drop'
           condition: succeeded()
+
   - stage: Test
     displayName: Test stage
     dependsOn: Build
@@ -106,5 +107,4 @@ stages:
                   azureSubscription: 'Azure subscription 1(e09df683-5860-4c9a-916e-34b74a94857a)'
                   appType: 'webAppLinux'
                   WebAppName: 'trailswebapp'
-                  packageForLinux: '$(Build.ArtifactStagingDirectory)/*.zip'
                   RuntimeStack: 'DOTNETCORE|6.0'
