@@ -108,3 +108,4 @@ stages:
                   appType: 'webAppLinux'
                   WebAppName: 'trailswebapp'
                   RuntimeStack: 'DOTNETCORE|6.0'
+              - task: PublishBuildArtifacts@1
