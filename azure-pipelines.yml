@@ -103,7 +103,7 @@ stages:
               - task: AzureRmWebAppDeployment@4
                 inputs:
                   ConnectionType: 'AzureRM'
-                  azureSubscription: 'Azure subscription 1(e09df683-5860-4c9a-916e-34b74a94857a)'
+                  azureSubscription: $(azure-subscription)
                   appType: 'webAppLinux'
                   WebAppName: 'trailswebapp'
                   packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
