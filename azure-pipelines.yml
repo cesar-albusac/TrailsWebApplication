@@ -54,8 +54,8 @@ stages:
         - task: PublishBuildArtifacts@1
           inputs:
             PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-          displayName: 'Publish Artifact: drop'
-          condition: succeeded()
+            ArtifactName: 'drop'
+            publishLocation: 'Container'
 
   - stage: Test
     displayName: Test stage
@@ -103,11 +103,17 @@ stages:
           runOnce:
             deploy:
               steps:
+              - task: DownloadBuildArtifacts@1
+                inputs:
+                  buildType: 'current'
+                  downloadType: 'single'
+                  artifactName: 'drop'
+                  downloadPath: '$(System.ArtifactsDirectory)'
               - task: AzureRmWebAppDeployment@4
                 inputs:
                   ConnectionType: 'AzureRM'
                   azureSubscription: 'Azure subscription 1(e09df683-5860-4c9a-916e-34b74a94857a)'
                   appType: 'webAppLinux'
                   WebAppName: 'trailswebapp'
-                  packageForLinux: '$(Build.ArtifactStagingDirectory)/*.zip'
+                  packageForLinux: '$(System.ArtifactsDirectory)/**/*.zip'
                   RuntimeStack: 'DOTNETCORE|6.0'
