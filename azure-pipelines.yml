@@ -106,6 +106,6 @@ stages:
                   ConnectionType: 'AzureRM'
                   azureSubscription: $(azure-subscription)
                   appType: 'webApp'
-                  WebAppName: $(app-service)
+                  WebAppName: 'trailswebapp'
                   packageForLinux: '$(Build.ArtifactStagingDirectory)/$(buildConfiguration)/*.zip'
                   enableCustomDeployment: true
