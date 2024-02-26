@@ -21,41 +21,33 @@ namespace TrailsWebApplication.Controllers
         private readonly IConfiguration _configuration;
         private const string Trails = "Trails";
         private string apiUrl = "";
+        private string blobConnectionString = "";
         private readonly ILogger<TrailsController> _logger;
 
         public TrailsController(IConfiguration configuration,ILogger<TrailsController> logger)
         {
             _configuration = configuration;
             _logger = logger;
-            apiUrl = GetSecretFromKeyVault("trailsapiurl");
+            apiUrl = KeyVaultSecrets.Instance.ApiUrl;
+            blobConnectionString = KeyVaultSecrets.Instance.BlobConnectionString;
         }
 
         public string GetSecretFromKeyVault(string secretName)
         {
-            // Retrieve the Key Vault URL from appsettings.json 
             string keyVaultUrl = _configuration["KeyVaultUrl"]; 
             var secretClient = new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
 
             try
             {
                 KeyVaultSecret secret = secretClient.GetSecretAsync(secretName).Result;
-                string secretValue = secret.Value;
-
-                System.Diagnostics.Trace.TraceInformation("secretValue is" + secretValue);
-                // Now you have the secret value, you can use it as needed
-                // For example, you can pass it to a view or return it as JSON
-
-                return secretValue;
+                return secret.Value;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                // Handle exceptions
                 return string.Empty;
             }
         }
-
-        private int _nextId = 1;
 
         public ActionResult Index()
         {
@@ -83,16 +75,11 @@ namespace TrailsWebApplication.Controllers
                     ModelState.AddModelError(string.Empty, "Server error. Please contact administrator.");
                 }
             }
-            // TODO  : REplace this code and auto generate ids 
-            if (trails.Any())
-            {
-                _nextId = trails.Count() + 1;
-            }
 
             return View("Index",trails);
         }
 
-        //GET: Trails/Details/5
+        //GET: Trails/Details/sdfsdf-234234-1212kf
         public ActionResult Details(string? id)
         {
             if (id == null)
@@ -125,11 +112,9 @@ namespace TrailsWebApplication.Controllers
                 else //web api sent error response 
                 {
                     _logger.LogError(string.Format("Web Api Error : Status Code {0}. Response Content:  {1}", result.StatusCode, result.Content));
-
                     return Index();
                 }
             }
-
 
             return View("Details", trail);
         }
@@ -156,20 +141,20 @@ namespace TrailsWebApplication.Controllers
                     List<Task> tasks = new List<Task>();
                     if (trail.GPXFile != null)
                     {
-                        Task gpxTask = AzureStorageHelper.UploadFileToStorage(trail.GPXFile, trail);
+                        Task gpxTask = AzureStorageHelper.UploadFileToStorage(trail.GPXFile, trail, blobConnectionString, "trails");
                         tasks.Add(gpxTask);
                     }
 
                     if (trail.ImageFile != null)
                     {
-                        Task imageTask = AzureStorageHelper.UploadFileToStorage(trail.ImageFile, trail);
+                        Task imageTask = AzureStorageHelper.UploadFileToStorage(trail.ImageFile, trail, blobConnectionString, "images");
                         tasks.Add(imageTask);
                     }
 
                     Task.WaitAll(tasks.ToArray());
 
-                    // Get Next id
                     trail.Id = Guid.NewGuid().ToString();
+
                     //HTTP POST
                     var postTask = client.PostAsJsonAsync<Trail>(Trails, trail);
                     postTask.Wait();
@@ -222,7 +207,6 @@ namespace TrailsWebApplication.Controllers
                 else
                 {
                     _logger.LogError(string.Format("Web Api Error : Status Code {0}. Response Content:  {1}", result.StatusCode, result.Content));
-
                 }
             }
             return NotFound();
@@ -266,7 +250,6 @@ namespace TrailsWebApplication.Controllers
                 }
             }
 
-
             return View("Delete", trail);
         }
 
@@ -307,18 +290,16 @@ namespace TrailsWebApplication.Controllers
                 {
                     if(deleteGpx && gpxUrl != null)
                     {
-                        AzureStorageHelper.DeleteFileFromStorage(gpxUrl);
+                        AzureStorageHelper.DeleteFileFromStorage(gpxUrl, blobConnectionString,"trails");
                     }
 
                     if (deleteImage && imageUrl != null)
                     {
-                        AzureStorageHelper.DeleteFileFromStorage(imageUrl);
+                        AzureStorageHelper.DeleteFileFromStorage(imageUrl, blobConnectionString,"images");
                     }
 
                     var readTask = result.Content.ReadAsStream();
-                    //readTask.Wait();
 
-                    //Trail = readTask.Result;
                     if (trail == null)
                     {
                         return NotFound();
