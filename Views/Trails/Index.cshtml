@@ -5,62 +5,53 @@
 }
 
 <h1>Inicio</h1>
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Portada</th>
+      <th scope="col">Título</th>
+      <th scope="col">Descripción</th>
+      <th scope="col">Dificultad</th>
+      <th scope="col">Distancia</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @if (string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        <img src="@Url.Content("https://trailsstorageaccount.blob.core.windows.net/thumbnails/default.jpg")" alt="images" />
+                    }
+                    else
+                    {
+                        <img src="@Url.Content(item.ImageUrl.ToString().Replace("images", "thumbnails"))" alt="images" />
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Difficulty)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Distance) km.
+                </td>
+                <td>
+                    <input type="button" class="btn btn-primary" value="Ver" onclick="location.href='@Url.Action("Details", "Trails", new { id = item.Id })'" />
+                    <input type="button" class="btn btn-warning" value="Editar" onclick="location.href='@Url.Action("Edit", "Trails", new { id = item.Id })'" />
+                    <input type="button" class="btn btn-danger" value="Eliminar" onclick="location.href='@Url.Action("Delete", "Trails", new { id = item.Id })'" />
+                </td>
+            </tr>
+        }
+  </tbody>
+</table>
 
 <p>
-    <a asp-action="Create">Crear nueva Ruta</a>
+    <input type="button" class="btn btn-success" value="Crear nueva Ruta" onclick="location.href='@Url.Action("Create", "Trails")'" />
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Portada
-            </th>
-            <th>
-                Título
-            </th>
-            <th>
-                Descripción
-            </th>
-            <th>
-                Dificultad
-            </th>
-            <th>
-                Distancia
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @if (string.IsNullOrEmpty(item.ImageUrl))
-                {
-                        <img src="@Url.Content("https://trailsstorageaccount.blob.core.windows.net/thumbnails/default.jpg")" alt="images" />
-                }
-                else
-                {
-                        <img src="@Url.Content(item.ImageUrl.ToString().Replace("images", "thumbnails"))" alt="images" />
-                }
-            </td>
-            <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                    @Html.DisplayFor(modelItem => item.Difficulty)
-            </td>
-            <td>
-                    @Html.DisplayFor(modelItem => item.Distance)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Detalles</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Eliminar</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>

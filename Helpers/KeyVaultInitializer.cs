@@ -6,7 +6,7 @@ namespace TrailsWebApplication.Helpers
 {
     public class KeyVaultSecrets
     {
-        private static KeyVaultSecrets _instance;
+        private static KeyVaultSecrets? _instance;
         private static readonly object _lock = new object();
 
         public string ApiUrl { get; private set; }
@@ -53,7 +53,7 @@ namespace TrailsWebApplication.Helpers
             }
             catch (Exception ex)
             {
-                // Handle the exception
+                Console.WriteLine($"Error getting secret from Key Vault: {ex.Message}");
                 return string.Empty;
             }
         }
