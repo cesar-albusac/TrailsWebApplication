@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
+using Trails.Data;
 using Trails.Models;
 using TrailsWebApplication.Helpers;
 
@@ -19,15 +20,17 @@ namespace TrailsWebApplication.Controllers
     public class TrailsController : Controller
     {
         private readonly IConfiguration _configuration;
+        private readonly ITrailRepository _TrailRepository;
         private const string Trails = "Trails";
         private string apiUrl = "";
         private string blobConnectionString = "";
         private readonly ILogger<TrailsController> _logger;
 
-        public TrailsController(IConfiguration configuration,ILogger<TrailsController> logger)
+        public TrailsController(IConfiguration configuration, ITrailRepository TrailRepository, ILogger<TrailsController> logger)
         {
             _configuration = configuration;
             _logger = logger;
+            _TrailRepository = TrailRepository;
             apiUrl = KeyVaultSecrets.Instance.ApiUrl;
             blobConnectionString = KeyVaultSecrets.Instance.BlobConnectionString;
         }
@@ -120,6 +123,7 @@ namespace TrailsWebApplication.Controllers
         }
 
         // GET: Trails/Create
+        [Route("Trails/Create")]
         public IActionResult Create()
         {
             return View("Create");
@@ -130,8 +134,9 @@ namespace TrailsWebApplication.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
+        [Route("Trails/Create")]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Trail trail)
+        public ActionResult Create([FromForm]Trail trail)
         {
             if (ModelState.IsValid)
             {
@@ -177,6 +182,7 @@ namespace TrailsWebApplication.Controllers
         }
 
         // GET: Trails/Edit/5
+        [Route("Trails/Edit")]
         public ActionResult Edit(string? id)
         {
             if (id == null)
@@ -210,6 +216,47 @@ namespace TrailsWebApplication.Controllers
                 }
             }
             return NotFound();
+        }
+
+        [HttpPost]
+        [Route("Trails/Edit")]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit([FromForm] Trail trail)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                List<Task> tasks = new List<Task>();
+                if (trail.GPXFile != null)
+                {
+                    Task gpxTask = AzureStorageHelper.UploadFileToStorage(trail.GPXFile, trail, blobConnectionString, "trails");
+                    tasks.Add(gpxTask);
+                }
+
+                if (trail.ImageFile != null)
+                {
+                    Task imageTask = AzureStorageHelper.UploadFileToStorage(trail.ImageFile, trail, blobConnectionString, "images");
+                    tasks.Add(imageTask);
+                }
+
+                Task.WaitAll(tasks.ToArray());
+
+                //HTTP PUT
+                var putTask = client.PutAsJsonAsync<Trail>(Trails + "/" + trail.Id, trail);
+                putTask.Wait();
+
+                var result = putTask.Result;
+                if (result.IsSuccessStatusCode)
+                {
+                    return View("Details", trail);
+                }
+                else
+                {
+                    _logger.LogError(string.Format("Web Api Error : Status Code {0}. Response Content:  {1}", result.StatusCode, result.Content));
+                }
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         public ActionResult Delete(string? id)
@@ -282,7 +329,7 @@ namespace TrailsWebApplication.Controllers
 
                 client.BaseAddress = new Uri(apiUrl);
                 //HTTP GET
-                var responseTask = client.DeleteAsync(string.Format("{0}?id={1}", Trails, trail.Id));
+                var responseTask = client.DeleteAsync(string.Join('/', Trails, trail.Id));
                 responseTask.Wait();
 
                 var result = responseTask.Result;

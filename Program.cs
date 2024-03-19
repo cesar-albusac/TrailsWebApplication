@@ -11,7 +11,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+var MyAllowSpecificOrigins = "origins";
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("https://trailsstorageaccount.blob.core.windows.net/");
 
+		});
+});
+builder.Services.AddScoped<ITrailRepository, TrailRepository>();
 var app = builder.Build();
 
 
@@ -26,6 +37,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseCors(MyAllowSpecificOrigins);
 
 
 app.UseRouting();
