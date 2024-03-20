@@ -1,11 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using TrailsWebApplication.Models;
-using Azure.Identity;
-using Microsoft.Extensions.Configuration.AzureKeyVault;
-using NuGet.Protocol.Core.Types;
-using Trails.Data;
-using TrailsWebApplication.Helpers;
+﻿using Trails.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

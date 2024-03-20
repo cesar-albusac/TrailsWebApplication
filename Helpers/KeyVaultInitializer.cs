@@ -1,6 +1,5 @@
 ﻿using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
-using Trails.Controllers;
 
 namespace TrailsWebApplication.Helpers
 {

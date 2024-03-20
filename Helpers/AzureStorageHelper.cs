@@ -1,7 +1,4 @@
-﻿using Azure.Core;
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
-using Azure.Storage.Blobs;
+﻿using Azure.Storage.Blobs;
 using Trails.Models;
 
 namespace TrailsWebApplication.Helpers
