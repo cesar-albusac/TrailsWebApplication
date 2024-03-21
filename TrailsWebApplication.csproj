@@ -12,6 +12,7 @@
     <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.5.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.16" />
+    <PackageReference Include="TrailsAPI" Version="1.0.0-CI-20240320-183927" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,10 +20,6 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="TrailsAPI">
-      <HintPath>..\TrailsAPI\bin\Debug\net6.0\TrailsAPI.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+
 
 </Project>
