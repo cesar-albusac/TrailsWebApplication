@@ -5,6 +5,8 @@ VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrailsWebApplication", "TrailsWebApplication.csproj", "{0A795291-64AA-4B04-8C1D-3356DEDE504F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject", "..\TestProject\TestProject.csproj", "{E7F8E5BF-C355-4168-9717-78CF2B8C189E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,10 +17,10 @@ Global
 		{0A795291-64AA-4B04-8C1D-3356DEDE504F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A795291-64AA-4B04-8C1D-3356DEDE504F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A795291-64AA-4B04-8C1D-3356DEDE504F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0ED0B9F7-A7BD-44CF-BB53-0254D15DCB20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0ED0B9F7-A7BD-44CF-BB53-0254D15DCB20}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0ED0B9F7-A7BD-44CF-BB53-0254D15DCB20}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0ED0B9F7-A7BD-44CF-BB53-0254D15DCB20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7F8E5BF-C355-4168-9717-78CF2B8C189E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7F8E5BF-C355-4168-9717-78CF2B8C189E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7F8E5BF-C355-4168-9717-78CF2B8C189E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7F8E5BF-C355-4168-9717-78CF2B8C189E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
