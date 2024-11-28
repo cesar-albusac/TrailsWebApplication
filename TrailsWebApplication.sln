@@ -5,7 +5,7 @@ VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrailsWebApplication", "TrailsWebApplication.csproj", "{0A795291-64AA-4B04-8C1D-3356DEDE504F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject", "..\TestProject\TestProject.csproj", "{E7F8E5BF-C355-4168-9717-78CF2B8C189E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject", ".\TestProject\TestProject.csproj", "{E7F8E5BF-C355-4168-9717-78CF2B8C189E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
